@@ -1,0 +1,111 @@
+﻿namespace DailyCodingProblem
+{
+    public class Problems
+    {
+        /*
+           This problem was recently asked by Google.
+           
+           Given a list of numbers and a number k, return whether any two numbers from the list add up to k.
+           
+           For example, given [10, 15, 3, 7] and k of 17, return true since 10 + 7 is 17.
+           
+           Bonus: Can you do this in one pass?
+         */
+        public static bool DoesTwoNumbersAddUp(int[] array, int number)
+        {
+            for (int i = 0; i < array.Length - 1; i++)
+            {
+                for (int j = i + 1; j < array.Length; j++)
+                {
+                    if (array[i] + array[j] == number)
+                    {
+                        return true;
+                    }
+                }
+            }
+
+            return false;
+        }
+
+        /*
+           This problem was asked by Uber.
+
+Given an array of integers, return a new array such that each element at index i of the new array is the product of all the numbers in the original array except the one at i.
+
+For example, if our input was [1, 2, 3, 4, 5], the expected output would be [120, 60, 40, 30, 24]. If our input was [3, 2, 1], the expected output would be [2, 3, 6].
+
+Follow-up: what if you can't use division?
+         */
+        public static int[] TransformUsingDivision(int[] input)
+        {
+            var transformed = new int[input.Length];
+            long allMultiplied = 1;
+            foreach (var i in input)
+            {
+                allMultiplied *= i;
+            }
+
+            for (int i = 0; i < input.Length; i++)
+            {
+                transformed[i] = (int) (allMultiplied / input[i]);
+            }
+
+            return transformed;
+        }
+
+        /*
+           This problem was asked by Google.
+           
+           Given the root to a binary tree, implement serialize(root), which serializes the tree into a string, and deserialize(s), which deserializes the string back into the tree.
+           
+           For example, given the following Node class
+           
+           class Node:
+           def __init__(self, val, left=None, right=None):
+           self.val = val
+           self.left = left
+           self.right = right
+           The following test should pass:
+           
+           node = Node('root', Node('left', Node('left.left')), Node('right'))
+           assert deserialize(serialize(node)).left.left.val == 'left.left'
+         */
+        public class Node
+        {
+            public string Value { get; set; }
+            public Node Left { get; set; }
+            public Node Right { get; set; }
+
+            public Node(string value, Node left, Node right)
+            {
+                Value = value;
+                Left = left;
+                Right = right;
+            }
+        }
+
+        public static string SerilalizeRoot(Node root)
+        {
+            return string.Empty;
+        }
+
+        public static Node DeserilalizeRoot(string serialized)
+        {
+            return null;
+        }
+
+        /*
+           This problem was asked by Stripe.
+           
+           Given an array of integers, find the first missing positive integer in linear time and constant space. In other words, find the lowest positive integer that does not exist in the array. The array can contain duplicates and negative numbers as well.
+           
+           For example, the input [3, 4, -1, 1] should give 2. The input [1, 2, 0] should give 3.
+           
+           You can modify the input array in-place.
+         */
+        public static int GetFirstMissingPositiveNumber(int[] array)
+        {
+            return 0;
+        }
+    }
+}
