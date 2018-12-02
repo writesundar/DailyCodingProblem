@@ -31,5 +31,20 @@ namespace DailyCodingProblem.Tests
             // Assert
             CollectionAssert.AreEqual(actual, expected);
         }
+
+        [TestCase(new[] { 1, 2, 3, 4, 5 }, 6)]
+        [TestCase(new[] { -1, -2 }, 1)]
+        [TestCase(new[] { 1, 3 }, 2)]
+        [TestCase(new[] { 2, 3 }, 1)]
+        public void GetFirstMissingPositiveNumberTests(int[] input, int expected)
+        {
+            // Arrange
+
+            // Act
+            int actual = Problems.GetFirstMissingPositiveNumber(input);
+
+            // Assert
+            Assert.AreEqual(actual, expected);
+        }
     }
 }

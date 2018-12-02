@@ -1,4 +1,6 @@
-﻿namespace DailyCodingProblem
+﻿using System.Collections.Generic;
+
+namespace DailyCodingProblem
 {
     public class Problems
     {
@@ -97,7 +99,9 @@ Follow-up: what if you can't use division?
         /*
            This problem was asked by Stripe.
            
-           Given an array of integers, find the first missing positive integer in linear time and constant space. In other words, find the lowest positive integer that does not exist in the array. The array can contain duplicates and negative numbers as well.
+           Given an array of integers, find the first missing positive integer in linear time and constant space. 
+           In other words, find the lowest positive integer that does not exist in the array. 
+           The array can contain duplicates and negative numbers as well.
            
            For example, the input [3, 4, -1, 1] should give 2. The input [1, 2, 0] should give 3.
            
@@ -105,7 +109,24 @@ Follow-up: what if you can't use division?
          */
         public static int GetFirstMissingPositiveNumber(int[] array)
         {
-            return 0;
+            SortedDictionary<int, int> keys = new SortedDictionary<int, int>();
+            for (int i = 0; i < array.Length; i++)
+            {
+                if (array[i] > 0)
+                {
+                    keys[array[i]] = 1;
+                }
+            }
+            int missing = 1;
+            foreach (var key in keys.Keys)
+            {
+                if (key != missing)
+                {
+                    break;
+                }
+                missing++;
+            }
+            return missing;
         }
     }
 }
