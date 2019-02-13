@@ -1,13 +1,47 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Linq;
 
 namespace DailyCodingProblem
 {
+    [DebuggerDisplay("{" + nameof(Val) + "}")]
+    public class SllNode
+    {
+        public int Val { get; set; }
+        public SllNode Next { get; set; }
+    }
+
+    [DebuggerDisplay("{Start},{End}")]
+    public class RangeNode
+    {
+        public RangeNode(int start, int end)
+        {
+            Start = start;
+            End = end;
+        }
+
+        public int Start { get; }
+        public int End { get; }
+
+        public override bool Equals(object obj)
+        {
+            var node = (RangeNode) obj;
+            return node.Start == Start && node.End == End;
+        }
+
+        public override int GetHashCode()
+        {
+            return (Start.GetHashCode() + End.GetHashCode()).GetHashCode();
+        }
+    }
+
     public class Problems
     {
         /*
            This problem was recently asked by Google.
            
-           Given a list of numbers and a number k, return whether any two numbers from the list add up to k.
+           Given a list of numbers and a number k, return whether any two numbers the list add up to k.
            
            For example, given [10, 15, 3, 7] and k of 17, return true since 10 + 7 is 17.
            
@@ -69,16 +103,16 @@ Follow-up: what if you can't use division?
            self.right = right
            The following test should pass:
            
-           node = Node('root', Node('left', Node('left.left')), Node('right'))
+           node = Node('root', Node('left', Node('left.left')), TreeNode('right'))
            assert deserialize(serialize(node)).left.left.val == 'left.left'
          */
-        public class Node
+        public class TreeNode
         {
             public string Value { get; set; }
-            public Node Left { get; set; }
-            public Node Right { get; set; }
+            public TreeNode Left { get; set; }
+            public TreeNode Right { get; set; }
 
-            public Node(string value, Node left, Node right)
+            public TreeNode(string value, TreeNode left, TreeNode right)
             {
                 Value = value;
                 Left = left;
@@ -86,12 +120,12 @@ Follow-up: what if you can't use division?
             }
         }
 
-        public static string SerilalizeRoot(Node root)
+        public static string SerilalizeRoot(TreeNode root)
         {
             return string.Empty;
         }
 
-        public static Node DeserilalizeRoot(string serialized)
+        public static TreeNode DeserilalizeRoot(string serialized)
         {
             return null;
         }
@@ -117,6 +151,7 @@ Follow-up: what if you can't use division?
                     keys[array[i]] = 1;
                 }
             }
+
             int missing = 1;
             foreach (var key in keys.Keys)
             {
@@ -124,9 +159,190 @@ Follow-up: what if you can't use division?
                 {
                     break;
                 }
+
                 missing++;
             }
+
             return missing;
+        }
+
+        /*
+         *This problem was asked by Google.
+Given a list of integers S and a target number k, write a function that returns a subset of S that adds up to k. If such a subset cannot be made, then return null.
+Integers can appear more than once in the list. You may assume all numbers in the list are positive.
+For example, given S = [12, 1, 61, 5, 9, 2] and k = 24, return [12, 9, 2, 1] since it sums up to 24.
+         */
+        public static int[] GetSubsetAddingToNumber(int[] arr, int requiredSum)
+        {
+            if (requiredSum == 0)
+            {
+                return new int[0];
+            }
+
+            if (requiredSum < 0)
+            {
+                return null;
+            }
+
+            var total = arr.Sum();
+            if (total < requiredSum)
+            {
+                return null;
+            }
+
+            if (total == requiredSum)
+            {
+                return arr;
+            }
+
+            List<int> subset = new List<int>(arr.Length);
+            for (int i = 0; i < arr.Length; i++)
+            {
+                var a = arr[i];
+                subset.Clear();
+                subset.Add(a);
+                var subArr = GetSubsetAddingToNumber(GetArrayWithoutIndexValue(arr, i), requiredSum - a);
+                if (subArr != null)
+                {
+                    subset.AddRange(subArr);
+                    return subset.ToArray();
+                }
+
+                continue;
+            }
+
+            return null;
+        }
+
+        private static int[] GetArrayWithoutIndexValue(int[] arr, int indexToRemove)
+        {
+            int[] newArray = new int[arr.Length - 1];
+            int j = 0;
+            for (int i = 0; i < arr.Length; i++)
+            {
+                if (i == indexToRemove)
+                {
+                    continue;
+                }
+
+                newArray[j++] = arr[i];
+            }
+
+            return newArray;
+        }
+
+        /*
+         * This problem was asked by Google.
+Given the head of a singly linked list, reverse it in-place.
+         */
+        public static void Rearrange(SllNode head)
+        {
+            Rearrange(head, head.Next, head.Next?.Next);
+        }
+
+        private static void Rearrange(SllNode head, SllNode first, SllNode second)
+        {
+            if (second != null) // Can happen when list has only 1 item
+            {
+                if (second.Next == null)
+                {
+                    head.Next = second;
+                }
+                else
+                {
+                    Rearrange(head, second, second.Next);
+                }
+
+                second.Next = first;
+            }
+            else
+            {
+                head.Next = first;
+            }
+
+            first.Next = null;
+        }
+
+        /*
+         * Given k sorted singly list, write a function to merge all
+    into once sorted singly linked list
+         */
+        public static SllNode GetMergedList(IList<SllNode> headNodes)
+        {
+            SllNode mergeNodeHead = new SllNode();
+            SllNode lastNodeInMergeList = null;
+            while (headNodes.Any(h => h.Next != null))
+            {
+                SllNode minHead = null;
+                foreach (var head in headNodes)
+                {
+                    if (head.Next == null)
+                    {
+                        continue;
+                    }
+
+                    if (minHead == null)
+                    {
+                        minHead = head;
+                    }
+                    else if (head.Next.Val <= minHead.Next.Val)
+                    {
+                        minHead = head;
+                    }
+                }
+
+                if (mergeNodeHead.Next == null)
+                {
+                    mergeNodeHead.Next = minHead.Next;
+                    lastNodeInMergeList = minHead.Next;
+                }
+                else
+                {
+                    lastNodeInMergeList.Next = minHead.Next;
+                    lastNodeInMergeList = minHead.Next;
+                }
+
+                minHead.Next = minHead.Next.Next;
+            }
+
+            return mergeNodeHead;
+        }
+
+        /*
+         * Given a list of possibly overlapping intervals, return a new list of intervals where all overlapping intervals have been merged.
+         The input list is not necessarily ordered in any way.
+         For example, given [(1, 3), (5, 8), (4, 10), (20, 25)], you should return [(1, 3), (4, 10), (20, 25)].         
+         */
+        public static IList<RangeNode> GetMergedNodes(IList<RangeNode> originalNodes)
+        {
+            IList<RangeNode> mergedNodes = new List<RangeNode>(originalNodes.Count);
+            RangeNode previousNode = null;
+            foreach (var originalNode in originalNodes.OrderBy(n => n.Start))
+            {
+                var candidateNode = originalNode;
+                if (previousNode != null)
+                {
+                    if (NodesOverlap(originalNode, previousNode))
+                    {
+                        mergedNodes.Remove(previousNode);
+                        candidateNode = new RangeNode(
+                            Math.Min(originalNode.Start, previousNode.Start),
+                            Math.Max(originalNode.End, previousNode.End));
+                    }
+                }
+
+                mergedNodes.Add(candidateNode);
+                previousNode = candidateNode;
+            }
+
+            return mergedNodes;
+        }
+
+        private static bool NodesOverlap(RangeNode firstNode, RangeNode secondNode)
+        {
+            return (firstNode.Start >= secondNode.Start && firstNode.Start <= secondNode.End) ||
+                   (firstNode.End >= secondNode.Start && firstNode.End <= secondNode.End) ||
+                   (firstNode.Start <= secondNode.Start && firstNode.End >= secondNode.End);
         }
     }
 }
