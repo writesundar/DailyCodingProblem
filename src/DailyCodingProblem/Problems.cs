@@ -1,41 +1,11 @@
-﻿using System;
+﻿using DailyCodingProblem.Data;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 
 namespace DailyCodingProblem
 {
-    [DebuggerDisplay("{" + nameof(Val) + "}")]
-    public class SllNode
-    {
-        public int Val { get; set; }
-        public SllNode Next { get; set; }
-    }
-
-    [DebuggerDisplay("{Start},{End}")]
-    public class RangeNode
-    {
-        public RangeNode(int start, int end)
-        {
-            Start = start;
-            End = end;
-        }
-
-        public int Start { get; }
-        public int End { get; }
-
-        public override bool Equals(object obj)
-        {
-            var node = (RangeNode) obj;
-            return node.Start == Start && node.End == End;
-        }
-
-        public override int GetHashCode()
-        {
-            return (Start.GetHashCode() + End.GetHashCode()).GetHashCode();
-        }
-    }
-
     public class Problems
     {
         /*
@@ -343,6 +313,41 @@ Given the head of a singly linked list, reverse it in-place.
             return (firstNode.Start >= secondNode.Start && firstNode.Start <= secondNode.End) ||
                    (firstNode.End >= secondNode.Start && firstNode.End <= secondNode.End) ||
                    (firstNode.Start <= secondNode.Start && firstNode.End >= secondNode.End);
+        }
+
+        /*
+         * This problem was asked by Google.
+Given the root of a binary tree, return a deepest node. For example, in the following tree, return d.
+    1
+   / \
+  2   3
+ /
+4
+*/
+        public static BTreeNode GetDeepestNode(BTreeNode rootNode, out int depth)
+        {
+            if (rootNode == null)
+            {
+                depth = 0;
+                return null;
+            }
+
+            depth = 1;
+            BTreeNode deepestLeftTreeNode = GetDeepestNode(rootNode.Left, out int leftTreeDepth);
+            BTreeNode deepestRightTreeNode = GetDeepestNode(rootNode.Right, out int rightTreeDepth);
+            if (leftTreeDepth == 0 && rightTreeDepth == 0) // no left or right trees
+            {
+                return rootNode;
+            }
+
+            if (leftTreeDepth >= rightTreeDepth)
+            {
+                depth += leftTreeDepth;
+                return deepestLeftTreeNode;
+            }
+
+            depth += rightTreeDepth;
+            return deepestRightTreeNode;
         }
     }
 }

@@ -1,4 +1,6 @@
-﻿using NUnit.Framework;
+﻿using DailyCodingProblem.Data;
+using NUnit.Framework;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -155,6 +157,35 @@ namespace DailyCodingProblem.Tests
             }
 
             return inputs;
+        }
+
+        [Test]
+        public void GetDeepestNodeTests()
+        {
+            // Arrange
+            var rootNode = CreateTree();
+            // Act
+            var deepestNode = Problems.GetDeepestNode(rootNode, out int depth);
+
+            // Assert
+            Assert.That(deepestNode.Val, Is.EqualTo(4));
+            Assert.That(depth, Is.EqualTo(3));
+        }
+
+        private BTreeNode CreateTree()
+        {
+            /*
+            1
+           / \
+          2   3
+         /
+        4
+             */
+            BTreeNode root = new BTreeNode { Val = 1};
+            root.Left = new BTreeNode { Val = 2};
+            root.Right = new BTreeNode { Val = 3 };
+            root.Left.Left = new BTreeNode { Val = 4 };
+            return root;
         }
     }
 }
