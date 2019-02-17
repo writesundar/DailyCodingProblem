@@ -164,12 +164,42 @@ namespace DailyCodingProblem.Tests
         {
             // Arrange
             var rootNode = CreateTree();
+            
             // Act
             var deepestNode = Problems.GetDeepestNode(rootNode, out int depth);
 
             // Assert
             Assert.That(deepestNode.Val, Is.EqualTo(4));
             Assert.That(depth, Is.EqualTo(3));
+        }
+
+        [Test]
+        public void InvertBinaryTreee()
+        {
+            // Arrange
+            var rootNode = CreateTree();
+            
+            // Act
+            Problems.InvertBinaryTreee(rootNode);
+
+            // Assert
+            /*
+            1
+           / \
+          3   2
+               \
+                4
+             */
+            Assert.That(rootNode.Val, Is.EqualTo(1));
+
+            Assert.That(rootNode.Left.Val, Is.EqualTo(3));
+            Assert.That(rootNode.Left.Left, Is.Null);
+            Assert.That(rootNode.Left.Right, Is.Null);
+
+            Assert.That(rootNode.Right.Val, Is.EqualTo(2));
+            Assert.That(rootNode.Right.Right.Val, Is.EqualTo(4));
+            Assert.That(rootNode.Right.Left, Is.Null);
+
         }
 
         private BTreeNode CreateTree()
