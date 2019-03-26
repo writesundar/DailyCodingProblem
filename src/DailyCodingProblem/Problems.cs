@@ -1,20 +1,17 @@
 ﻿using DailyCodingProblem.Data;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
+using System.Text;
 
 namespace DailyCodingProblem
 {
     public class Problems
     {
         /*
-           This problem was recently asked by Google.
-           
-           Given a list of numbers and a number k, return whether any two numbers the list add up to k.
-           
-           For example, given [10, 15, 3, 7] and k of 17, return true since 10 + 7 is 17.
-           
+           This problem was recently asked by Google.           
+           Given a list of numbers and a number k, return whether any two numbers the list add up to k.           
+           For example, given [10, 15, 3, 7] and k of 17, return true since 10 + 7 is 17.           
            Bonus: Can you do this in one pass?
          */
         public static bool DoesTwoNumbersAddUp(int[] array, int number)
@@ -35,11 +32,8 @@ namespace DailyCodingProblem
 
         /*
            This problem was asked by Uber.
-
 Given an array of integers, return a new array such that each element at index i of the new array is the product of all the numbers in the original array except the one at i.
-
 For example, if our input was [1, 2, 3, 4, 5], the expected output would be [120, 60, 40, 30, 24]. If our input was [3, 2, 1], the expected output would be [2, 3, 6].
-
 Follow-up: what if you can't use division?
          */
         public static int[] TransformUsingDivision(int[] input)
@@ -383,6 +377,192 @@ should become:
             var temp = rootNode.Left;
             rootNode.Left = rootNode.Right;
             rootNode.Right = temp;
+        }
+
+        /*
+         * This problem was asked by Google.
+         * Given a set of closed intervals, find the smallest set of numbers that covers all the intervals.
+         * If there are multiple smallest sets, return any of them.
+         * For example, given the intervals [0, 3], [2, 6], [3, 4], [6, 9], one set of numbers that covers all these intervals is {3, 6}.
+         */
+        public static IEnumerable<int> GetSmallestSet(IList<RangeNode> nodes)
+        {
+            if (nodes.Count == 0)
+            {
+                return Enumerable.Empty<int>();
+            }
+
+            BTreeNode tree = new BTreeNode {Val = -1};
+            foreach (var rangeNode in nodes)
+            {
+                AddToLeafNode(tree, rangeNode);
+            }
+
+            return GetItemsInShortestPath(tree).Except(new[] {-1});
+        }
+
+        private static IEnumerable<int> GetItemsInShortestPath(BTreeNode treeNode)
+        {
+            if (treeNode == null)
+            {
+                return Enumerable.Empty<int>();
+            }
+
+            var currentItem = new[] {treeNode.Val};
+            if (treeNode.Left == null) // Right will also be null
+            {
+                return currentItem;
+            }
+
+            var leftSubTreeItemsInShortestPath = GetItemsInShortestPath(treeNode.Left).ToList();
+            var rightSubTreeItemsInShortestPath = GetItemsInShortestPath(treeNode.Right).ToList();
+
+            return (leftSubTreeItemsInShortestPath.Count <= rightSubTreeItemsInShortestPath.Count
+                ? leftSubTreeItemsInShortestPath
+                : rightSubTreeItemsInShortestPath).Union(currentItem);
+        }
+
+        private static void AddToLeafNode(BTreeNode treeNode, RangeNode rangeNode)
+        {
+            if (treeNode == null)
+            {
+                return;
+            }
+
+            // if node already has one of the value, ignore.
+            if (treeNode.Val == rangeNode.Start || treeNode.Val == rangeNode.End)
+            {
+                return;
+            }
+
+            if (treeNode.Left == null) // Right will also be null
+            {
+                treeNode.Left = new BTreeNode {Val = rangeNode.Start};
+                treeNode.Right = new BTreeNode {Val = rangeNode.End};
+            }
+            else
+            {
+                AddToLeafNode(treeNode.Left, rangeNode);
+                AddToLeafNode(treeNode.Right, rangeNode);
+            }
+        }
+
+        /*
+         *This problem was asked by Google.
+         * Given two non-empty binary trees s and t, check whether tree t has exactly the same structure and node values with a subtree of s.
+         * A subtree of s is a tree consists of a node in s and all of this node's descendants. The tree s could also be considered as a subtree of itself.
+         */
+        public static bool HasSubTree(BTreeNode main, BTreeNode subtree)
+        {
+            if (main == null)
+            {
+                return subtree == null;
+            }
+
+            if (main.Val == subtree.Val && HasSubTree(main.Left, subtree.Left) &&
+                HasSubTree(main.Right, subtree.Right))
+            {
+                return true;
+            }
+
+            if (HasSubTree(main.Left, subtree) || HasSubTree(main.Right, subtree))
+            {
+                return true;
+            }
+
+            return false;
+        }
+
+        /*
+         * This problem was asked by Facebook.
+         * Given a string and a set of delimiters, reverse the words in the string while maintaining the relative order of the delimiters.
+         * For example, given "hello/world:here", return "here/world:hello"
+         * Follow-up: Does your solution work for the following cases: "hello/world:here/", "hello//world:here"
+         */
+        public static string SplitJoinPreservingDelimiters(string input, char[] delimiters)
+        {
+            List<char> delimiterOrder = new List<char>();
+            List<string> wordsOrder = new List<string>();
+            string word = string.Empty;
+
+            foreach (char t in input)
+            {
+                if (delimiters.Contains(t))
+                {
+                    delimiterOrder.Add(t);
+                    wordsOrder.Add(word);
+                    word = string.Empty;
+                }
+                else
+                {
+                    word += t;
+                }
+            }
+
+            wordsOrder.Add(word);
+
+            StringBuilder sb = new StringBuilder();
+            for (int i = wordsOrder.Count - 1, j = 0; i > 0; i--, j++)
+            {
+                sb.Append($"{wordsOrder[i]}{delimiterOrder[j]}");
+            }
+
+            sb.Append(wordsOrder[0]);
+
+            return sb.ToString();
+        }
+
+        /*
+         * This problem was asked by Alibaba.
+         * Given an even number (greater than 2), return two prime numbers whose sum will be equal to the given number.
+         * A solution will always exist. See Goldbach’s conjecture.
+         * Example:
+         * Input: 4
+         * Output: 2 + 2 = 4
+         * If there are more than one solution possible, return the lexicographically smaller solution.
+         * If [a, b] is one solution with a <= b, and [c, d] is another solution with c <= d, then [a, b] < [c, d] If a < c OR a==c AND b < d.
+         */
+        public static Tuple<int, int> GetTwoPrimeWithSumEquals(int sum)
+        {
+            int first = 2;
+            int second = sum - first;
+            while (!IsPrime(first) || !IsPrime(second))
+            {
+                first++;
+                second = sum - first;
+            }
+
+            return new Tuple<int, int>(first, second);
+        }
+
+        public static bool IsPrime(int number)
+        {
+            if (number <= 1)
+            {
+                return false;
+            }
+
+            if (number == 2)
+            {
+                return true;
+            }
+
+            if (number % 2 == 0)
+            {
+                return false;
+            }
+
+            var boundary = (int) Math.Floor(Math.Sqrt(number));
+
+            for (int i = 3; i <= boundary; i += 2)
+            {
+                if (number % i == 0)
+                {
+                    return false;
+                }
+            }
+
+            return true;
         }
     }
 }

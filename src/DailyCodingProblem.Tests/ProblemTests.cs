@@ -2,6 +2,7 @@
 using NUnit.Framework;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 
 namespace DailyCodingProblem.Tests
@@ -164,7 +165,7 @@ namespace DailyCodingProblem.Tests
         {
             // Arrange
             var rootNode = CreateTree();
-            
+
             // Act
             var deepestNode = Problems.GetDeepestNode(rootNode, out int depth);
 
@@ -178,7 +179,7 @@ namespace DailyCodingProblem.Tests
         {
             // Arrange
             var rootNode = CreateTree();
-            
+
             // Act
             Problems.InvertBinaryTreee(rootNode);
 
@@ -211,11 +212,99 @@ namespace DailyCodingProblem.Tests
          /
         4
              */
-            BTreeNode root = new BTreeNode { Val = 1};
-            root.Left = new BTreeNode { Val = 2};
-            root.Right = new BTreeNode { Val = 3 };
-            root.Left.Left = new BTreeNode { Val = 4 };
+            BTreeNode root = new BTreeNode {Val = 1};
+            root.Left = new BTreeNode {Val = 2};
+            root.Right = new BTreeNode {Val = 3};
+            root.Left.Left = new BTreeNode {Val = 4};
             return root;
+        }
+
+        [TestCase("0,3#2,6#3,4#6,9", "3,6")]
+        [TestCase("0,3#2,5#3,4#6,9", "3,2,6")]
+        [TestCase("0,3#2,5#7,4#6,9", "0,2,7,6")]
+        public void GetSmallestSetTests(string input, string expectedOutput)
+        {
+            // Arrange
+            var nodes = ParseToRangeNodes(input);
+
+            // Act
+            var smallestSet = Problems.GetSmallestSet(nodes);
+
+            // Assert
+            CollectionAssert.AreEquivalent(expectedOutput.Split(',').Select(int.Parse), smallestSet);
+        }
+
+        [Test]
+        public void HasSubTreeTests()
+        {
+            // Arrange
+            var main = CreateMainTree();
+            var subtree = CreateSubTree();
+
+            // Act
+            var actual = Problems.HasSubTree(main, subtree);
+
+            // Assert
+            Assert.That(actual, Is.EqualTo(true));
+        }
+
+        private BTreeNode CreateMainTree()
+        {
+            var temp = new BTreeNode
+            {
+                Val = 1,
+                Left = new BTreeNode {Val = 2},
+                Right = new BTreeNode {Val = 3}
+            };
+
+            temp = new BTreeNode
+            {
+                Val = 8,
+                Left = temp,
+                Right = new BTreeNode {Val = 10}
+            };
+
+            return new BTreeNode {Val = 5, Left = new BTreeNode {Val = 6}, Right = temp};
+        }
+
+        private BTreeNode CreateSubTree()
+        {
+            return new BTreeNode
+            {
+                Val = 1,
+                Left = new BTreeNode {Val = 2},
+                Right = new BTreeNode {Val = 3}
+            };
+        }
+
+        [TestCase("hello/world:here", "here/world:hello")]
+        [TestCase("hello/world:here/", "/here:world/hello")]
+        [TestCase("hello//world:here", "here/world/:hello")]
+        [TestCase("/hello/world:here", "here/world/hello:")]
+        public void SplitJoinPreservingDelimitersTests(string input, string expected)
+        {
+            // Arrange
+            var delimiters = new[] {'/', ':'};
+
+            // Act
+            var actual = Problems.SplitJoinPreservingDelimiters(input, delimiters);
+
+            // Assert
+            Assert.That(actual, Is.EqualTo(expected));
+        }
+
+        [TestCase(4, 2, 2)]
+        [TestCase(6, 3, 3)]
+        [TestCase(10, 3, 7)]
+        [TestCase(100, 3, 97)]
+        [TestCase(50, 3, 47)]
+        public void GetTwoPrimeWithSumEqualsTests(int sum, int first, int second)
+        {
+            // Act
+            var tuple = Problems.GetTwoPrimeWithSumEquals(sum);
+
+            // Assert
+            Assert.That(tuple, Is.EqualTo(new Tuple<int, int>(first, second)));
         }
     }
 }
