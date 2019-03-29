@@ -564,5 +564,151 @@ should become:
 
             return true;
         }
+
+        /*
+         * This problem was asked by Google.
+         * Given a sorted list of integers, square the elements and give the output in sorted order.
+         * For example, given [-9, -2, 0, 2, 3], return [0, 4, 4, 9, 81].
+         */
+        public static IEnumerable<int> GetOrderedSquares(int[] array)
+        {
+            // we split the array into two. Once half will be negative numbers and other will be 0 and +ve numbers.
+            // iterated on both halfs comparing the absolute values since square of -ve will be a +ve number
+
+            // right will have the index for first 0 or +ve number
+            int right;
+            for (right = 0; right < array.Length; right++)
+            {
+                if (array[right] >= 0)
+                {
+                    break;
+                }
+            }
+
+            int left = right - 1;
+            while (left >= 0 && right < array.Length)
+            {
+                if (Math.Abs(array[left]) > array[right])
+                {
+                    yield return GetSquareAndIncrementIndex(array, ref right, 1);
+                }
+                else
+                {
+                    yield return GetSquareAndIncrementIndex(array, ref left, -1);
+                }
+            }
+            // at this one of left or right will have reached the end. Return the remaining in the other. 
+            while (left >= 0)
+            {
+                yield return GetSquareAndIncrementIndex(array, ref left, -1);
+            }
+
+            while (right < array.Length)
+            {
+                yield return GetSquareAndIncrementIndex(array, ref right, 1);
+            }
+        }
+
+        private static int GetSquareAndIncrementIndex(int[] array, ref int index, int increment)
+        {
+            var item = array[index];
+            index += increment;
+            return item * item;
+        }
+
+        /*
+         * This problem was asked by Microsoft.
+         * Implement the singleton pattern with a twist.
+         * First, instead of storing one instance, store two instances.
+         * And in every even call of getInstance(), return the first instance and in every odd call of getInstance(),
+         * return the second instance.
+         */
+        public class TwoInstanceSingleton
+        {
+            private TwoInstanceSingleton()
+            {
+            }
+
+            private static int _instanceCount;
+
+            private static readonly Lazy<TwoInstanceSingleton> LazyOddInstance =
+                new Lazy<TwoInstanceSingleton>(() => new TwoInstanceSingleton());
+
+            private static readonly Lazy<TwoInstanceSingleton> LazyEvenInstance =
+                new Lazy<TwoInstanceSingleton>(() => new TwoInstanceSingleton());
+
+            private static readonly object LockObject = new object();
+
+            public static TwoInstanceSingleton Instance
+            {
+                get
+                {
+                    lock (LockObject)
+                    {
+                        _instanceCount++;
+                        return _instanceCount % 2 == 0 ? LazyEvenInstance.Value : LazyOddInstance.Value;
+                    }
+                }
+            }
+        }
+
+        /*
+         * This question was asked by Zillow.
+         * You are given a 2-d matrix where each cell represents number of coins in that cell.
+         * Assuming we start at matrix[0][0], and can only move right or down,
+         * find the maximum number of coins you can collect by the bottom right corner.
+         * For example, in this matrix
+         * 0 3 1 1
+         * 2 0 0 4
+         * 1 5 3 1
+         * The most we can collect is 0 + 2 + 1 + 5 + 3 + 1 = 12 coins.
+         */
+        public static int GetMaxCoins(int[,] array)
+        {
+            /* Solution is to construct a binary tree with the root = array[0,0]
+             * Left of node will be value of down element, right of node will be value of right element
+             * In case of a a[2,2], the tree will be as below
+             *                a[0,0]
+             *               /     \
+             *              /       \
+             *          a[1,0]     a[0,1]
+             *              \       /
+             *               \     /
+             *            a[1,1] a[1,1]
+             * Once we have the tree, we select the path to leaf with the highest sum. That will be the result.
+             */ 
+            var root = new BTreeNode {Val = array[0,0]};
+            AddChildren(root, array, 0, 0);
+
+            return GetMaxCountToLeaf(root);
+        }
+
+        private static int GetMaxCountToLeaf(BTreeNode node)
+        {
+            if (node == null)
+            {
+                return 0;
+            }
+
+            var leftCount = GetMaxCountToLeaf(node.Left);
+            var rightCount = GetMaxCountToLeaf(node.Right);
+            return node.Val + Math.Max(leftCount, rightCount);
+        }
+
+        private static void AddChildren(BTreeNode parent, int[,] array, int rowIndex, int colIndex)
+        {
+            var rowCount = array.GetLength(0);
+            var colCount = array.GetLength(1);
+            if (rowIndex + 1 < rowCount && colIndex < colCount)
+            {
+                parent.Left = new BTreeNode {Val = array[rowIndex + 1, colIndex]};
+                AddChildren(parent.Left, array, rowIndex + 1, colIndex);
+            }
+            if (rowIndex < rowCount && colIndex + 1 < colCount)
+            {
+                parent.Right = new BTreeNode { Val = array[rowIndex, colIndex + 1] };
+                AddChildren(parent.Right, array, rowIndex, colIndex + 1);
+            }
+        }
     }
 }

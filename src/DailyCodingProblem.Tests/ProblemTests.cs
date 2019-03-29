@@ -306,5 +306,81 @@ namespace DailyCodingProblem.Tests
             // Assert
             Assert.That(tuple, Is.EqualTo(new Tuple<int, int>(first, second)));
         }
+
+        [TestCase(new[] {-9, -2, 0, 2, 3}, new[] {0, 4, 4, 9, 81})]
+        [TestCase(new[] {-9, -8, -6, -2, -1}, new[] {1, 4, 36, 64, 81})]
+        public void GetOrderedSquaresTests(int[] input, int[] expectedOutput)
+        {
+            // Act
+            var actual = Problems.GetOrderedSquares(input);
+
+            // Assert
+            CollectionAssert.AreEqual(expectedOutput, actual);
+        }
+
+        public class TwoInstanceSingletonTests
+        {
+            [Test]
+            public void TestsFirstOddEvenCall()
+            {
+                // Act
+                var oddInstance = Problems.TwoInstanceSingleton.Instance;
+                var evenInstance = Problems.TwoInstanceSingleton.Instance;
+
+                // Assert
+                Assert.That(oddInstance, Is.Not.SameAs(evenInstance));
+            }
+
+            [TestCase(2, true)]
+            [TestCase(3, false)]
+            [TestCase(5, false)]
+            [TestCase(10, true)]
+            public void Tests(int callNumber, bool isEvenExpected)
+            {
+
+                // Arrange
+                var oddInstance = Problems.TwoInstanceSingleton.Instance;
+                var evenInstance = Problems.TwoInstanceSingleton.Instance;
+
+                // Act
+                Problems.TwoInstanceSingleton actual = null;
+                for (int i = 0; i < callNumber; i++)
+                {
+                    actual = Problems.TwoInstanceSingleton.Instance;
+                }
+
+                // Assert
+                Assert.That(actual, Is.SameAs(isEvenExpected ? evenInstance : oddInstance));
+            }
+        }
+
+        [TestCase("0,3,1,1#2,0,0,4#1,5,3,1", 12)]
+        public void GetMaxCoinsTest(string arrayString, int expected)
+        {
+            // Arrange
+            var array = Create2DArray(arrayString);
+            
+            // Act
+            var count = Problems.GetMaxCoins(array);
+
+            // Assert
+            Assert.That(count, Is.EqualTo(expected));
+        }
+
+        private int[,] Create2DArray(string arrayString)
+        {
+            var rows = arrayString.Split('#');
+            var firstRowColumns = rows[0].Split(',');
+            int[,] array = new int[rows.Length, firstRowColumns.Length];
+            for (int i = 0; i < rows.Length; i++)
+            {
+                var columns = rows[i].Split(',');
+                for (int j = 0; j < columns.Length; j++)
+                {
+                    array[i, j] = int.Parse(columns[j]);
+                }
+            }
+            return array;
+        }
     }
 }
