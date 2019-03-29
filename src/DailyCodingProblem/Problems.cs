@@ -387,6 +387,24 @@ should become:
          */
         public static IEnumerable<int> GetSmallestSet(IList<RangeNode> nodes)
         {
+            /* We build a binary tree of from the coordinates, ignoring the ones that are already in the path
+             * [0, 3], [2, 6], [3, 4], [6, 9] will end up in below tree with root = -1
+             *                           -1
+             *                           |
+             *             ----------------------------
+             *            |                            |
+             *            0                            3
+             *            |                            |
+             *        ----------------             --------
+             *       |                |          |        |
+             *       2                6          2        6
+             *      / \              / \        / \
+             *     /   \            /   \      /   \
+             *    3     4          3     4    6     9
+             *   / \   / \
+             *  6   9 6   9
+             */
+
             if (nodes.Count == 0)
             {
                 return Enumerable.Empty<int>();
